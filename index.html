@@ -3,64 +3,60 @@
 <html lang="en" class="bg-slate-950">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>The Daily Loop RPG</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐺</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Metamorphous&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Metamorphous&family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
+    html, body {
+      min-height: 100%;
+      background-color: #020617;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #020617; /* slate-950 */
       color: #f8fafc;
-      overflow-x: hidden;
+      overflow-x: hidden; /* Prevent horizontal wobble */
+      overflow-y: auto;   /* Allow vertical scroll */
     }
-    .rpg-font {
-      font-family: 'Metamorphous', cursive;
-    }
-    .fantasy-title {
-      font-family: 'Cinzel', serif;
-    }
+    .rpg-font { font-family: 'Metamorphous', cursive; }
+    .fantasy-title { font-family: 'Cinzel', serif; font-weight: 700; }
     
     @keyframes twinkle {
       0%, 100% { opacity: 0.3; transform: scale(1); }
       50% { opacity: 1; transform: scale(1.2); }
     }
-    .animate-twinkle {
-      animation: twinkle 3s infinite ease-in-out;
-    }
+    .animate-twinkle { animation: twinkle 3s infinite ease-in-out; }
 
     @keyframes float-up {
       0% { transform: translateY(0); opacity: 0; }
       20% { opacity: 1; }
-      100% { transform: translateY(-40px); opacity: 0; }
+      100% { transform: translateY(-60px); opacity: 0; }
     }
     .xp-float {
       position: absolute;
       font-weight: 900;
       color: #fbbf24;
       pointer-events: none;
-      z-index: 50;
-      animation: float-up 1.2s ease-out forwards;
-      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+      z-index: 100;
+      animation: float-up 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      font-size: 1.25rem;
     }
 
-    /* Custom scrollbar for fantasy feel */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    
+    header { padding-top: env(safe-area-inset-top, 1rem); }
+    nav { padding-bottom: env(safe-area-inset-bottom, 1.5rem); }
   </style>
 <script type="importmap">
 {

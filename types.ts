@@ -12,7 +12,7 @@ export interface DailyActions {
 export interface HistoryEntry {
   date: string; // ISO Date String YYYY-MM-DD
   actions: DailyActions;
-  logs: Record<LoopAction, string>; // What the user did
+  logs: Record<LoopAction, string>;
   xpEarned: number;
 }
 
@@ -24,19 +24,17 @@ export interface Stats {
   mana: number; // CARE
 }
 
-export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  isUnlocked: boolean;
+export interface AppSettings {
+  language: 'en' | 'de' | 'bg';
+  reminderTime: string;
+  notificationsEnabled: boolean;
 }
 
-export interface LootCard {
+export interface Relic {
   id: string;
   name: string;
-  description: string;
-  rarity: 'Common' | 'Uncommon' | 'Rare' | 'Legendary';
+  icon: string;
+  unlockedAt: string;
 }
 
 export interface UserState {
@@ -45,9 +43,9 @@ export interface UserState {
   history: HistoryEntry[];
   today: DailyActions;
   todayLogs: Record<LoopAction, string>;
-  allocatedPoints: Stats;
-  freePoints: number;
   streak: number;
   lastCompletedDate: string | null;
-  unlockedLoot: LootCard[];
+  settings: AppSettings;
+  relics: Relic[];
+  selectedHeroId: string | null;
 }

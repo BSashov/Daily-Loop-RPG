@@ -1,132 +1,206 @@
 
-import React from 'react';
-import { UserState, LoopAction } from '../types';
-import { getHistoryInsights } from '../utils/gameLogic';
+import React, { useState, useMemo } from 'react';
+import { UserState, LoopAction, HistoryEntry } from '../types';
+import { getHistoryInsights, getTodayString } from '../utils/gameLogic';
+import { TRANSLATIONS } from '../constants';
 
 interface HistoryViewProps {
   state: UserState;
+  onToggleHistory: (date: string, action: LoopAction) => void;
+  onUpdateHistoryLog: (date: string, action: LoopAction, text: string) => void;
 }
 
-const HistoryView: React.FC<HistoryViewProps> = ({ state }) => {
-  const sortedHistory = [...state.history]
-    .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 30);
+const HistoryView: React.FC<HistoryViewProps> = ({ state, onToggleHistory, onUpdateHistoryLog }) => {
+  const lang = state.settings.language;
+  const t = TRANSLATIONS[lang];
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Generate continuous calendar from Jan 1st of current year to Today
+  const calendarDates = useMemo(() => {
+    const start = new Date(new Date().getFullYear(), 0, 1);
+    const today = new Date();
+    const dates = [];
+    let curr = new Date(today);
+    while (curr >= start) {
+      dates.push(curr.toISOString().split('T')[0]);
+      curr.setDate(curr.getDate() - 1);
+    }
+    return dates;
+  }, []);
+
+  const selectedEntry = state.history.find(h => h.date === selectedDate) || {
+    date: selectedDate || '',
+    actions: { MOVE: false, LEARN: false, MAKE: false, SHARE: false, CARE: false },
+    logs: { MOVE: '', LEARN: '', MAKE: '', SHARE: '', CARE: '' },
+    xpEarned: 0
+  };
 
   const insights = getHistoryInsights(state.history);
+  const showNeglected = insights && insights.totalActions > 5 && insights.weakest !== insights.strongest;
 
   return (
-    <div className="p-6 space-y-10 animate-in slide-in-from-right duration-700 relative overflow-hidden">
-      {/* Background Ambience */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
-         <div className="absolute top-10 left-10 w-64 h-64 bg-indigo-500/10 blur-[100px]" />
-         <div className="absolute bottom-10 right-10 w-64 h-64 bg-purple-500/10 blur-[100px]" />
-      </div>
+    <div className="flex-1 flex flex-col h-full overflow-hidden relative">
+      <div className="p-4 sm:p-6 space-y-6 overflow-y-auto pb-40">
+        <div className="relative z-10 space-y-1 pt-4">
+          <h2 className="text-2xl fantasy-title text-indigo-400">{t.tome}</h2>
+          <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest opacity-70">
+            {lang === 'bg' ? 'Хроники на' : lang === 'de' ? 'Chroniken von' : 'Chronicles of'} {new Date().getFullYear()}
+          </p>
+        </div>
 
-      <div className="relative z-10 space-y-1">
-        <h2 className="text-3xl fantasy-title text-indigo-400">Chronicle Star Map</h2>
-        <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic">Charting your alignment with the cosmos.</p>
-      </div>
-
-      {/* Chronicle Insights */}
-      {insights && (
-        <section className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-2xl backdrop-blur-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10 text-5xl">🔭</div>
-          <h3 className="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4">Astral Evaluations</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Ascendant Stat</p>
-              <p className="text-sm font-bold text-slate-200 flex items-center">
-                <span className="text-amber-400 mr-2">✦</span> {insights.strongest}
-              </p>
+        {/* Chronicle Insights */}
+        {insights && (
+          <section className="bg-slate-900/40 border border-slate-900 rounded-[2rem] p-6 shadow-2xl backdrop-blur-sm">
+            <h3 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">{t.eval}</h3>
+            <div className={`grid ${showNeglected ? 'grid-cols-2' : 'grid-cols-1'} gap-4`}>
+              <div className="space-y-1">
+                <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">{t.strongest}</p>
+                <p className="text-sm font-bold text-slate-200 capitalize">✦ {insights.strongest.toLowerCase()}</p>
+              </div>
+              {showNeglected && (
+                <div className="space-y-1">
+                  <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">{t.neglected}</p>
+                  <p className="text-sm font-bold text-slate-200 capitalize">✦ {insights.weakest.toLowerCase()}</p>
+                </div>
+              )}
             </div>
-            <div className="space-y-1">
-              <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Neglected Star</p>
-              <p className="text-sm font-bold text-slate-200 flex items-center">
-                <span className="text-red-400 mr-2">✦</span> {insights.weakest}
-              </p>
-            </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-slate-800/50">
-            <p className="text-[10px] text-slate-400 italic">"You are strongest when you {insights.strongest === 'MOVE' ? 'dance with the physical' : 'seek knowledge'}. Do not fear the {insights.weakest} loop."</p>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      {/* Star Map History */}
-      <div className="space-y-8 relative">
-        {sortedHistory.length === 0 ? (
-          <div className="text-center py-24 bg-slate-900/30 rounded-3xl border-2 border-dashed border-slate-800">
-             <div className="text-5xl mb-6 grayscale opacity-20 animate-pulse">🌌</div>
-             <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest">Your sky is dark.<br/>Ignite the first star today.</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {sortedHistory.map((entry, idx) => {
-              const count = Object.values(entry.actions).filter(Boolean).length;
-              const dateObj = new Date(entry.date);
-              const formattedDate = dateObj.toLocaleDateString(undefined, { 
-                month: 'short', day: 'numeric', weekday: 'short' 
-              });
+        {/* Calendar Feed */}
+        <div className="space-y-3">
+          {calendarDates.map((date) => {
+            const entry = state.history.find(h => h.date === date);
+            const count = entry ? Object.values(entry.actions).filter(Boolean).length : 0;
+            const isToday = date === getTodayString();
+            
+            const dateObj = new Date(date);
+            const formattedDate = dateObj.toLocaleDateString(lang, { 
+              month: 'short', day: 'numeric', weekday: 'short' 
+            });
 
-              return (
-                <div key={entry.date} className="relative group">
-                  {/* Connection Line to next star */}
-                  {idx < sortedHistory.length - 1 && (
-                    <div className="absolute left-6 top-10 bottom-0 w-[2px] bg-gradient-to-b from-indigo-500/40 to-transparent z-0" />
-                  )}
-
-                  <div className="bg-slate-900/40 border border-slate-800 p-5 rounded-2xl shadow-xl flex items-center justify-between group hover:border-indigo-500/50 transition-all relative z-10 backdrop-blur-sm">
-                    <div className="flex items-center space-x-5">
-                      {/* Star Visual */}
-                      <div className={`w-3 h-3 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.2)] transition-all duration-1000 ${
-                        count === 5 ? 'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.6)] scale-125' : 
-                        count >= 3 ? 'bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.4)]' : 
-                        'bg-slate-700'
-                      }`} />
-                      
-                      <div className="space-y-2">
-                        <p className="text-[10px] font-black uppercase text-indigo-400 tracking-[0.2em]">{formattedDate}</p>
-                        <div className="flex gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                          <MiniStar active={entry.actions.MOVE} />
-                          <MiniStar active={entry.actions.LEARN} />
-                          <MiniStar active={entry.actions.MAKE} />
-                          <MiniStar active={entry.actions.SHARE} />
-                          <MiniStar active={entry.actions.CARE} />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-base font-black text-slate-100 group-hover:text-indigo-300 transition-colors">+{entry.xpEarned} XP</p>
-                      <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest mt-1">{count}/5 ALIGNED</p>
-                    </div>
-                  </div>
-
-                  {/* Activity Details Popup on hover */}
-                  <div className="hidden group-hover:block absolute left-0 right-0 top-full mt-2 p-4 bg-slate-950 border border-slate-800 rounded-xl z-20 shadow-2xl animate-in fade-in duration-300">
-                    <div className="space-y-2">
-                      {(Object.keys(entry.actions) as LoopAction[]).map(action => (
-                        entry.actions[action] && (
-                          <div key={action} className="flex space-x-2 items-start">
-                             <span className="text-[9px] font-bold text-indigo-500 uppercase shrink-0">[{action}]</span>
-                             <p className="text-[10px] text-slate-400 italic leading-tight">{entry.logs[action] || "Manifestation complete."}</p>
-                          </div>
-                        )
-                      ))}
-                    </div>
+            return (
+              <button 
+                key={date} 
+                onClick={() => {
+                  setSelectedDate(date);
+                  setIsEditing(false);
+                }}
+                className={`w-full border p-4 rounded-2xl flex items-center justify-between group active:scale-[0.98] transition-all ${
+                    entry 
+                    ? 'bg-slate-900/40 border-slate-900' 
+                    : 'bg-slate-950/20 border-slate-900/50 opacity-60'
+                } ${isToday ? 'border-indigo-500/30' : ''}`}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className={`w-3 h-3 rounded-full ${
+                    count === 5 ? 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]' : 
+                    count >= 1 ? 'bg-indigo-400' : 'bg-slate-800'
+                  }`} />
+                  <div className="text-left">
+                    <p className={`text-[10px] font-black uppercase tracking-wider ${isToday ? 'text-indigo-400' : 'text-slate-400'}`}>
+                        {formattedDate} {isToday ? (lang === 'bg' ? '• ДНЕС' : lang === 'de' ? '• HEUTE' : '• TODAY') : ''}
+                    </p>
+                    <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">{count}/5 ALIGNED</p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+                <span className="text-slate-800">❯</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-      <div className="pb-10" />
+
+      {/* Details & Edit Overlay */}
+      {selectedDate && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl p-6 flex flex-col animate-in slide-in-from-bottom duration-300">
+           <header className="flex justify-between items-center mb-6">
+              <h2 className="text-xl fantasy-title text-indigo-400">{t.details}</h2>
+              <button onClick={() => {
+                setSelectedDate(null);
+                setIsEditing(false);
+              }} className="text-slate-500 text-2xl p-2">✕</button>
+           </header>
+           
+           <div className="flex items-center justify-between mb-4 bg-slate-900/40 px-4 py-2 rounded-xl">
+              <p className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em]">{selectedDate}</p>
+              <button 
+                onClick={() => setIsEditing(!isEditing)}
+                className={`text-[9px] font-black uppercase px-4 py-1.5 rounded-full border transition-all ${
+                  isEditing 
+                  ? 'bg-amber-500 border-amber-400 text-slate-950 shadow-lg' 
+                  : 'bg-slate-800 border-slate-700 text-slate-400'
+                }`}
+              >
+                {isEditing ? t.saveEntry : t.editEntry}
+              </button>
+           </div>
+
+           <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+              {(['MOVE', 'LEARN', 'MAKE', 'SHARE', 'CARE'] as LoopAction[]).map(action => {
+                const checked = selectedEntry.actions[action];
+                const log = selectedEntry.logs[action];
+                const icon = { MOVE: "🏃", LEARN: "📚", MAKE: "🔨", SHARE: "🤝", CARE: "✨" }[action];
+                const actionTranslation = t.actions[action];
+                
+                return (
+                  <div 
+                    key={action} 
+                    className={`p-4 rounded-2xl border transition-all ${
+                      checked 
+                      ? 'bg-indigo-500/10 border-indigo-500/30' 
+                      : 'bg-slate-900/20 border-slate-900'
+                    } ${!checked && !isEditing ? 'opacity-40' : 'opacity-100'}`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <button 
+                        disabled={!isEditing}
+                        onClick={() => onToggleHistory(selectedDate, action)}
+                        className={`flex items-center space-x-3 text-left ${isEditing ? 'cursor-pointer active:scale-95' : 'cursor-default'}`}
+                      >
+                        <span className={`text-xl transition-all ${checked ? '' : 'grayscale opacity-30 scale-90'}`}>{icon}</span>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${checked ? 'text-indigo-300' : 'text-slate-500'}`}>
+                          {actionTranslation.label}
+                        </span>
+                      </button>
+                      {isEditing && (
+                        <button 
+                            onClick={() => onToggleHistory(selectedDate, action)}
+                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                                checked ? 'bg-indigo-500 border-indigo-400 shadow-lg' : 'border-slate-800'
+                            }`}
+                        >
+                          {checked && <div className="w-2 h-2 bg-white rounded-full animate-pulse" />}
+                        </button>
+                      )}
+                    </div>
+                    
+                    {isEditing ? (
+                        <textarea
+                            placeholder={`${lang === 'bg' ? 'Опишете своя' : lang === 'de' ? 'Beschreibe deinen' : 'Describe your'} ${action.toLowerCase()} loop...`}
+                            value={log}
+                            onChange={(e) => onUpdateHistoryLog(selectedDate, action, e.target.value)}
+                            className="w-full bg-slate-950/50 border border-slate-800/50 rounded-xl px-4 py-3 text-sm text-indigo-100 focus:outline-none focus:border-indigo-500/40 transition-colors resize-none h-20"
+                        />
+                    ) : (
+                        <p className={`text-sm italic leading-relaxed ${checked ? 'text-slate-200' : 'text-slate-600'}`}>
+                            {log || (checked ? (lang === 'bg' ? 'Манифестирано, но ненаписано.' : lang === 'de' ? 'Manifestiert, aber nicht aufgeschrieben.' : "Manifested but unwritten.") : "---")}
+                        </p>
+                    )}
+                  </div>
+                );
+              })}
+           </div>
+           
+           <div className="pt-6 border-t border-slate-900 mt-4 flex justify-between items-center text-slate-500">
+              <span className="text-[9px] font-black uppercase tracking-widest">{selectedEntry.xpEarned} XP {lang === 'bg' ? 'СЪБРАНИ' : lang === 'de' ? 'GESAMMELT' : 'COLLECTED'}</span>
+              <span className="text-[12px] animate-pulse">✨</span>
+           </div>
+        </div>
+      )}
     </div>
   );
 };
-
-const MiniStar = ({ active }: { active: boolean }) => (
-  <div className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${active ? 'bg-indigo-400 shadow-[0_0_5px_rgba(129,140,248,0.8)]' : 'bg-slate-800'}`} />
-);
 
 export default HistoryView;
