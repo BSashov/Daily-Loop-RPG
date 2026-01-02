@@ -35,10 +35,10 @@ const HeroSelection: React.FC<HeroSelectionProps> = ({ onSelect, language }) => 
               }`}
             >
               <div className={`text-6xl mb-4 transition-transform duration-500 ${selected === hero.id ? 'scale-110 drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]' : 'grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100'}`}>
-                {hero.icon}
+                {hero.stages[0].icon}
               </div>
               <h3 className={`text-[10px] font-black uppercase tracking-widest ${selected === hero.id ? 'text-indigo-300' : 'text-slate-500'}`}>
-                {(hero.name as any)[language]}
+                {hero.stages[0].name[language]}
               </h3>
               {selected === hero.id && (
                 <div className="absolute inset-0 bg-indigo-500/5 animate-pulse pointer-events-none" />

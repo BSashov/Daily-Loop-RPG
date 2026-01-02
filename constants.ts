@@ -11,17 +11,127 @@ export const BASE_XP: Record<LoopAction, number> = {
 
 export const PERFECT_DAY_BONUS = 50;
 
-export const HERO_TEMPLATES = [
-  { id: 'wolf', icon: '🐺', name: { en: 'The Wolf Pup', de: 'Der Wolfswelpe', bg: 'Вълчето' }, desc: { en: 'A loyal spirit with a balanced heart.', de: 'Ein treuer Geist mit einem ausgeglichenen Herzen.', bg: 'Лоялен дух с балансирано сърце.' } },
-  { id: 'dog', icon: '🐕', name: { en: 'The Brave Hound', de: 'Der tapfere Hund', bg: 'Смелото куче' }, desc: { en: 'Endless resilience and a wagging tail.', de: 'Endlose Widerstandsfähigkeit und ein wedelnder Schwanz.', bg: 'Безкрайна издръжливост и махаща опашка.' } },
-  { id: 'baby', icon: '👶', name: { en: 'The Fated Child', de: 'Das Schicksalskind', bg: 'Детето на съдбата' }, desc: { en: 'Unlimited potential for growth.', de: 'Unbegrenztes Wachstumspotenzial.', bg: 'Неограничен потенциал за растеж.' } },
-  { id: 'fox', icon: '🦊', name: { en: 'The Ember Kit', de: 'Der Glut-Fuchs', bg: 'Огненото лисиче' }, desc: { en: 'Cunning and quick to adapt.', de: 'Schlau und anpassungsfähig.', bg: 'Хитър и бързо адаптиращ се.' } },
-  { id: 'bird', icon: '🐦', name: { en: 'The Sky Herald', de: 'Der Himmelsbote', bg: 'Небесният вестоносец' }, desc: { en: 'A swift messenger with a view from above.', de: 'Ein flinker Bote mit dem Blick von oben.', bg: 'Бърз вестоносец с поглед отвисоко.' } },
-  { id: 'cat', icon: '🐈', name: { en: 'The Shadow Stalker', de: 'Der Schattenschleicher', bg: 'Сенчестият ловец' }, desc: { en: 'Mysterious, agile, and always curious.', de: 'Geheimnisvoll, agil und immer neugierig.', bg: 'Мистериозен, пъргав и винаги любопитен.' } },
-  { id: 'cow', icon: '🐄', name: { en: 'The Earth Guardian', de: 'Der Erdwächter', bg: 'Земният пазител' }, desc: { en: 'Steady, strong, and deeply grounded.', de: 'Beständig, stark und tief verwurzelt.', bg: 'Постоянен, силен и дълбоко заземен.' } },
-  { id: 'goat', icon: '🐐', name: { en: 'The Peak Climber', de: 'Der Gipfelstürmer', bg: 'Планинският катерач' }, desc: { en: 'Stubborn persistence that conquers any hill.', de: 'Hartnäckige Ausdauer, die jeden Hügel bezwingt.', bg: 'Упорит стремеж, който покорява всеки хълм.' } },
-  { id: 'bunny', icon: '🐰', name: { en: 'The Meadow Jumper', de: 'Der Wiesenhopser', bg: 'Ливадният скачач' }, desc: { en: 'Bursting with energy and gentle speed.', de: 'Voller Energie und sanfter Geschwindigkeit.', bg: 'Пълен с енергия и нежна скорост.' } },
-  { id: 'turtle', icon: '🐢', name: { en: 'The Tide Walker', de: 'Der Gezeitenwandler', bg: 'Пътешественикът' }, desc: { en: 'Wisdom found in the slow and steady path.', de: 'Weisheit auf dem langsamen und stetigen Pfad.', bg: 'Мъдрост, открита в бавния и постоянен път.' } },
+export const CLASS_ICONS: Record<string, string> = {
+  sentinel: '🛡️',
+  sage: '📖',
+  artificer: '🔨',
+  speaker: '🎭',
+  weaver: '🪄',
+  neophyte: '🌱',
+};
+
+export interface HeroStage {
+  icon: string;
+  name: Record<'en' | 'de' | 'bg', string>;
+}
+
+export interface HeroTemplate {
+  id: string;
+  stages: HeroStage[];
+  desc: Record<'en' | 'de' | 'bg', string>;
+}
+
+export const HERO_TEMPLATES: HeroTemplate[] = [
+  { 
+    id: 'wolf', 
+    stages: [
+      { icon: '🐶', name: { en: 'Wolf Pup', de: 'Wolfswelpe', bg: 'Вълче' } },
+      { icon: '🐺', name: { en: 'Young Wolf', de: 'Junger Wolf', bg: 'Млад вълк' } },
+      { icon: '🐺⚔️', name: { en: 'Dire Wolf', de: 'Schreckenswolf', bg: 'Страшен вълк' } },
+      { icon: '🐺🌌', name: { en: 'Fenrir Spawn', de: 'Fenris-Brut', bg: 'Потомък на Фенрир' } },
+    ],
+    desc: { en: 'A loyal spirit with a balanced heart.', de: 'Ein treuer Geist mit einem ausgeglichenen Herzen.', bg: 'Лоялен дух с балансирано сърце.' } 
+  },
+  { 
+    id: 'dog', 
+    stages: [
+      { icon: '🐕', name: { en: 'Scrappy Pup', de: 'Rauflustiger Welpe', bg: 'Пале' } },
+      { icon: '🐕‍🦺', name: { en: 'Brave Hound', de: 'Tapferer Hund', bg: 'Смело куче' } },
+      { icon: '🛡️🐕', name: { en: 'Guardian Mutt', de: 'Wächter-Hund', bg: 'Куче пазач' } },
+      { icon: '🐕👑', name: { en: 'Celestial Canine', de: 'Himmlischer Hund', bg: 'Небесно куче' } },
+    ],
+    desc: { en: 'Endless resilience and a wagging tail.', de: 'Endlose Widerstandsfähigkeit und ein wedelnder Schwanz.', bg: 'Безкрайна издръжливост и махаща опашка.' } 
+  },
+  { 
+    id: 'baby', 
+    stages: [
+      { icon: '👶', name: { en: 'Fated Infant', de: 'Schicksalskind', bg: 'Дете на съдбата' } },
+      { icon: '🧒', name: { en: 'Curious Youth', de: 'Neugieriges Kind', bg: 'Любопитно дете' } },
+      { icon: '👤', name: { en: 'Seasoned Hero', de: 'Erfahrener Held', bg: 'Опитен герой' } },
+      { icon: '🧙', name: { en: 'Grand Archmage', de: 'Großer Erzmagier', bg: 'Велик Архимаг' } },
+    ],
+    desc: { en: 'Unlimited potential for growth.', de: 'Unbegrenztes Wachstumspotenzial.', bg: 'Неограничен потенциал за растеж.' } 
+  },
+  { 
+    id: 'fox', 
+    stages: [
+      { icon: '🦊', name: { en: 'Ember Kit', de: 'Glut-Fuchs', bg: 'Огнено лисиче' } },
+      { icon: '🦊🐾', name: { en: 'Cunning Fox', de: 'Schlauer Fuchs', bg: 'Хитра лисица' } },
+      { icon: '🦊🔥', name: { en: 'Flame Tail', de: 'Flammenschweif', bg: 'Огнеопашка' } },
+      { icon: '🦊🔮', name: { en: 'Nine-Tailed Myth', de: 'Neunschwänziger Mythus', bg: 'Деветоопашат мит' } },
+    ],
+    desc: { en: 'Cunning and quick to adapt.', de: 'Schlau und anpassungsfähig.', bg: 'Хитър и бързо адаптиращ се.' } 
+  },
+  { 
+    id: 'bird', 
+    stages: [
+      { icon: '🐣', name: { en: 'Sky Hatchling', de: 'Himmelsküken', bg: 'Птиче' } },
+      { icon: '🐦', name: { en: 'Swift Swift', de: 'Schneller Segler', bg: 'Бързолет' } },
+      { icon: '🐥', name: { en: 'Storm Hawk', de: 'Sturmfalke', bg: 'Буреносен ястреб' } },
+      { icon: '🦅', name: { en: 'Sun Phoenix', de: 'Sonnenphönix', bg: 'Слънчев феникс' } },
+    ],
+    desc: { en: 'A swift messenger with a view from above.', de: 'Ein flinker Bote mit dem Blick von oben.', bg: 'Бърз вестоносец с поглед отвисоко.' } 
+  },
+  { 
+    id: 'cat', 
+    stages: [
+      { icon: '🐱', name: { en: 'Stray Kitten', de: 'Streunendes Kätzchen', bg: 'Малко коте' } },
+      { icon: '🐈', name: { en: 'Shadow Cat', de: 'Schattenkatze', bg: 'Сенчеста котка' } },
+      { icon: '🐆', name: { en: 'Night Prowler', de: 'Nachtjäger', bg: 'Нощен ловец' } },
+      { icon: '🦁', name: { en: 'Primal Apex', de: 'Urzeitlicher Jäger', bg: 'Първичен хищник' } },
+    ],
+    desc: { en: 'Mysterious, agile, and always curious.', de: 'Geheimnisvoll, agil und immer neugierig.', bg: 'Мистериозен, пъргав и винаги любопитен.' } 
+  },
+  { 
+    id: 'cow', 
+    stages: [
+      { icon: '🐮', name: { en: 'Earth Calf', de: 'Erdkalb', bg: 'Теленце' } },
+      { icon: '🐄', name: { en: 'Steady Bovine', de: 'Beständiges Rind', bg: 'Мирна крава' } },
+      { icon: '🐂', name: { en: 'Mighty Ox', de: 'Mächtiger Ochse', bg: 'Мощен бик' } },
+      { icon: '🐃', name: { en: 'Behemoth', de: 'Behemoth', bg: 'Бегемот' } },
+    ],
+    desc: { en: 'Steady, strong, and deeply grounded.', de: 'Beständig, stark und tief verwurzelt.', bg: 'Постоянен, силен и дълбоко заземен.' } 
+  },
+  { 
+    id: 'goat', 
+    stages: [
+      { icon: '🐐', name: { en: 'Hill Kid', de: 'Hügelkitz', bg: 'Яре' } },
+      { icon: '🐏', name: { en: 'Peak Goat', de: 'Berghippe', bg: 'Планинска коза' } },
+      { icon: '🐐⛰️', name: { en: 'Summit Ram', de: 'Gipfelwidder', bg: 'Върхов овен' } },
+      { icon: '🐐🌟', name: { en: 'Astral Capricorn', de: 'Astraler Steinbock', bg: 'Астрален Козирог' } },
+    ],
+    desc: { en: 'Stubborn persistence that conquers any hill.', de: 'Hartnäckige Ausdauer, die jeden Hügel bezwingt.', bg: 'Упорит стремеж, който покорява всеки хълм.' } 
+  },
+  { 
+    id: 'bunny', 
+    stages: [
+      { icon: '🐰', name: { en: 'Meadow Kit', de: 'Wiesenkit', bg: 'Зайче' } },
+      { icon: '🐇', name: { en: 'Swift Rabbit', de: 'Flinker Hase', bg: 'Бърз заек' } },
+      { icon: '🐇✨', name: { en: 'Moon Leaper', de: 'Mondspringer', bg: 'Лунен скачач' } },
+      { icon: '🐇🌙', name: { en: 'Lunar Deity', de: 'Mondgottheit', bg: 'Лунно божество' } },
+    ],
+    desc: { en: 'Bursting with energy and gentle speed.', de: 'Voller Energie und sanfter Geschwindigkeit.', bg: 'Пълен с енергия и нежна скорост.' } 
+  },
+  { 
+    id: 'turtle', 
+    stages: [
+      { icon: '🥚', name: { en: 'Tide Egg', de: 'Gezeitenei', bg: 'Морско яйце' } },
+      { icon: '🐢', name: { en: 'Hatchling', de: 'Schlüpfling', bg: 'Костенурка' } },
+      { icon: '🐢🛡️', name: { en: 'Shell Guard', de: 'Panzerwache', bg: 'Брониран пазител' } },
+      { icon: '🐢🐲', name: { en: 'World Tortoise', de: 'Welten-Schildkröte', bg: 'Световна костенурка' } },
+    ],
+    desc: { en: 'Wisdom found in the slow and steady path.', de: 'Weisheit auf dem langsamen und stetigen Pfad.', bg: 'Мъдрост, открита в бавния и постоянен път.' } 
+  },
 ];
 
 export const TRANSLATIONS = {
@@ -54,6 +164,12 @@ export const TRANSLATIONS = {
     chooseHero: "Summon Thy Spirit",
     chooseHeroDesc: "Choose your companion for the loops ahead. This choice is final.",
     embark: "Embark on Journey",
+    evolution: {
+      baby: "Neophyte",
+      young: "Acolyte",
+      warrior: "Guardian",
+      ascendant: "Legend"
+    },
     actions: {
       MOVE: { label: "Physical", sub: "Stamina", placeholder: "Movement log..." },
       LEARN: { label: "Mental", sub: "Intelligence", placeholder: "Study notes..." },
@@ -74,7 +190,7 @@ export const TRANSLATIONS = {
       artificer: "Master Artificer",
       speaker: "World Speaker",
       weaver: "Spirit Weaver",
-      neophyte: "Neophyte"
+      neophyte: "Beginner"
     },
     relics: {
       r1: "Titan Belt",
@@ -122,6 +238,12 @@ export const TRANSLATIONS = {
     chooseHero: "Beschwöre deinen Geist",
     chooseHeroDesc: "Wähle deinen Begleiter für die kommenden Loops. Diese Wahl ist endgültig.",
     embark: "Die Reise antreten",
+    evolution: {
+      baby: "Neophyt",
+      young: "Akolyth",
+      warrior: "Wächter",
+      ascendant: "Legende"
+    },
     actions: {
       MOVE: { label: "Physisch", sub: "Ausdauer", placeholder: "Bewegungsprotokoll..." },
       LEARN: { label: "Mental", sub: "Intelligenz", placeholder: "Studiennotizen..." },
@@ -142,7 +264,7 @@ export const TRANSLATIONS = {
       artificer: "Meister-Handwerker",
       speaker: "Welten-Sprecher",
       weaver: "Geister-Weber",
-      neophyte: "Neophyt"
+      neophyte: "Anfänger"
     },
     relics: {
       r1: "Titanengürtel",
@@ -190,6 +312,12 @@ export const TRANSLATIONS = {
     chooseHero: "Призови своя дух",
     chooseHeroDesc: "Избери своя спътник за цикъла. Този избор е окончателен.",
     embark: "Започни приключението",
+    evolution: {
+      baby: "Неофит",
+      young: "Аколит",
+      warrior: "Пазител",
+      ascendant: "Легенда"
+    },
     actions: {
       MOVE: { label: "Физически", sub: "Издръжливост", placeholder: "Дневник на движението..." },
       LEARN: { label: "Ментално", sub: "Интелект", placeholder: "Бележки за учене..." },
@@ -210,7 +338,7 @@ export const TRANSLATIONS = {
       artificer: "Майстор занаятчия",
       speaker: "Говорещ със светове",
       weaver: "Духовен Тъкач",
-      neophyte: "Неофит"
+      neophyte: "Начинаещ"
     },
     relics: {
       r1: "Титански колан",
